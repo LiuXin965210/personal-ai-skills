@@ -1,0 +1,45 @@
+Metadata-Version: 2.4
+Name: aliyun-log-python-sdk
+Version: 0.9.47
+Summary: Aliyun log service Python client SDK
+Home-page: https://github.com/aliyun/aliyun-log-python-sdk
+Author: Aliyun
+Classifier: Development Status :: 5 - Production/Stable
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 2.7
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Programming Language :: Python :: Implementation :: PyPy
+License-File: LICENSE
+Requires-Dist: six
+Requires-Dist: requests
+Requires-Dist: python-dateutil
+Requires-Dist: elasticsearch
+Requires-Dist: jmespath
+Requires-Dist: dateparser
+Requires-Dist: protobuf<6.0.0,>=3.20.3
+Requires-Dist: lz4
+Provides-Extra: test
+Requires-Dist: pytest; extra == "test"
+Requires-Dist: pytest-mock; extra == "test"
+Requires-Dist: responses; extra == "test"
+Requires-Dist: lz4; extra == "test"
+Requires-Dist: virtualenv; extra == "test"
+Requires-Dist: zstandard; extra == "test"
+Dynamic: author
+Dynamic: classifier
+Dynamic: description
+Dynamic: home-page
+Dynamic: license-file
+Dynamic: provides-extra
+Dynamic: requires-dist
+Dynamic: summary
+
+
+Python SDK for Alicloud Log Service
+http://aliyun-log-python-sdk.readthedocs.io

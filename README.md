@@ -2,50 +2,33 @@
 
 个人 AI 助手技能仓库，用来沉淀可复用的工作流、领域知识、脚本和模板。
 
-这个仓库不绑定单一工具。当前可以放 Codex skills，后续也可以补充 Claude Code skills 或其他本地 AI 编程助手可复用的技能资产。
+仓库根目录直接按技能名组织，不按 Codex、Claude Code 等工具来源分层。每个技能目录保留自身原始结构，例如 `SKILL.md`、`references/`、`scripts/`、`agents/`。
 
-## 目录结构
+## 当前技能
+
+- `code-migration`
+- `entity-sync`
+- `git-commit-helper`
+- `prd-task-breakdown`
+- `requirement-design-doc`
+- `troubleshoot-jsh-issue`
+
+## 目录约定
 
 ```text
-skills/
-  <skill-name>/
-    SKILL.md
-    agents/openai.yaml
-    references/
-    scripts/
-    assets/
-claude/
-  <skill-name>/
-scripts/
-  validate_skills.py
+.gitignore
+README.md
+<skill-name>/
+  SKILL.md
+  references/
+  scripts/
+  agents/
 ```
 
-## 新建 skill
+不是每个技能都需要 `references/`、`scripts/` 或 `agents/`，按实际需要保留。
 
-```bash
-cp -R skills/.template "skills/<skill-name>"
-```
+## 安全约定
 
-然后编辑 `skills/<skill-name>/SKILL.md`：
+不要提交真实密钥、token、cookie、数据库密码、个人配置或本地缓存文件。需要示例配置时，只提交 `*.example.*`。
 
-- `name` 必须和目录语义一致，使用小写短横线命名。
-- `description` 写清楚触发条件，让 AI 助手能判断什么时候使用。
-- 正文只保留核心流程；详细资料放入 `references/`，确定性流程放入 `scripts/`。
-
-## 校验
-
-```bash
-python3 scripts/validate_skills.py
-```
-
-## 本地安装
-
-可以把成熟的 Codex skill 复制或软链接到本机 Codex skills 目录：
-
-```bash
-ln -s "$PWD/skills/<skill-name>" "$HOME/.codex/skills/<skill-name>"
-```
-
-如果已有同名目录，先确认不是重要内容后再处理。
-
-Claude Code 相关技能后续放入 `claude/` 或按实际工具要求建立对应目录。
+本仓库已排除常见敏感文件名，例如 `.env`、`*secret*`、`*token*`、`sls_config.json` 等。

@@ -1,0 +1,5 @@
+{
+  "code_root": "/path/to/jsh/code",
+  "access_key_id": "YOUR_ACCESS_KEY_ID_OR_DELETE_THIS_FIELD",
+  "access_key_secret": "YOUR_ACCESS_KEY_SECRET_OR_DELETE_THIS_FIELD"
+}

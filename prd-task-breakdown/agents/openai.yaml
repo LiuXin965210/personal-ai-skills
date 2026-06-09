@@ -1,0 +1,4 @@
+interface:
+  display_name: "PRD任务拆解"
+  short_description: "根据PRD拆解需求任务并明确标注后端前端测试角色工时"
+  default_prompt: "Use $prd-task-breakdown to拆解这份PRD的后端、前端、测试任务项。"

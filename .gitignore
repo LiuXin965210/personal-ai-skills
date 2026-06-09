@@ -3,6 +3,15 @@ __pycache__/
 *.pyc
 .env
 .env.*
+*.pem
+!troubleshoot-jsh-issue/scripts/vendor/certifi/cacert.pem
+*.key
+*.p12
+*.jks
+*secret*
+*token*
+*credential*
+sls_config.json
 node_modules/
 dist/
 build/

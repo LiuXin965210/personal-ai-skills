@@ -1,0 +1,4 @@
+interface:
+  display_name: "需求设计稿生成"
+  short_description: "按默认模板或指定模板生成Markdown技术设计稿"
+  default_prompt: "Use $requirement-design-doc to generate a Markdown technical design document from this requirement."

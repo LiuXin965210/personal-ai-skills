@@ -1,0 +1,4 @@
+interface:
+  display_name: "JSH Issue Troubleshooting"
+  short_description: "通过 SLS 日志、递进检索和本地代码定位 JSH 服务问题"
+  default_prompt: "Use $troubleshoot-jsh-issue to investigate a JSH issue from a requestId, message, or URL and environment."
