@@ -1,6 +1,6 @@
 ---
 name: example-skill
-description: Replace this with a precise trigger description. Use when Codex should follow this personal workflow for a specific task, domain, tool, or repository.
+description: Replace this with a precise trigger description. Use when an AI assistant should follow this personal workflow for a specific task, domain, tool, or repository.
 ---
 
 # Example Skill
