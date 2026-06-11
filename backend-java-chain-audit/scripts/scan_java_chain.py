@@ -23,7 +23,8 @@ class Row:
     entry: str
     status: str = "待确认"
     summary: str = ""
-    mysql: set[str] = field(default_factory=set)
+    mysql_write: set[str] = field(default_factory=set)
+    mysql_read: set[str] = field(default_factory=set)
     redis: set[str] = field(default_factory=set)
     es: set[str] = field(default_factory=set)
     mongo: set[str] = field(default_factory=set)
@@ -118,15 +119,22 @@ def extract_mapping_values(text: str, annotation: str) -> list[str]:
     return values
 
 
-def extract_mysql(text: str) -> set[str]:
-    found = set()
+def extract_mysql(text: str) -> tuple[set[str], set[str]]:
+    writes = set()
+    reads = set()
     for pattern in [
-        r'@Table\s*\(\s*name\s*=\s*"([^"]+)"',
-        r"\b(?:from|join|into|update)\s+([a-zA-Z_][\w.]*)(?:\s|,|\)|\()",
+        r"\binsert\s+into\s+([a-zA-Z_][\w.]*)",
+        r"\bupdate\s+([a-zA-Z_][\w.]*)",
         r"\bdelete\s+from\s+([a-zA-Z_][\w.]*)",
+        r"\breplace\s+into\s+([a-zA-Z_][\w.]*)",
     ]:
-        found.update(re.findall(pattern, text, flags=re.IGNORECASE))
-    return clean_values(found)
+        writes.update(re.findall(pattern, text, flags=re.IGNORECASE))
+    for pattern in [
+        r"\bfrom\s+([a-zA-Z_][\w.]*)",
+        r"\bjoin\s+([a-zA-Z_][\w.]*)",
+    ]:
+        reads.update(re.findall(pattern, text, flags=re.IGNORECASE))
+    return clean_values(writes), clean_values(reads)
 
 
 def extract_redis(text: str) -> set[str]:
@@ -246,7 +254,9 @@ def scan_entry(project: Path, files: list[Path], entry_type: str, entry: str) ->
     row.evidence.update(rel(p, project) for p in entry_files[:20])
     row.summary = summarize_files(entry_files, project)
     candidate_text = "\n".join(read_text(p) for p in entry_files[:40])
-    row.mysql.update(extract_mysql(candidate_text))
+    mysql_write, mysql_read = extract_mysql(candidate_text)
+    row.mysql_write.update(mysql_write)
+    row.mysql_read.update(mysql_read)
     row.redis.update(extract_redis(candidate_text))
     row.es.update(extract_es(candidate_text))
     row.mongo.update(extract_mongo(candidate_text))
@@ -265,6 +275,62 @@ def cell(values: Iterable[str] | str) -> str:
     return "<br>".join(f"`{v}`" for v in items[:30]) if items else "无"
 
 
+def compact_external_cell(values: Iterable[str]) -> str:
+    items = sorted(v for v in values if v)
+    if not items:
+        return "无"
+    result = []
+    for value in items[:30]:
+        if value.startswith("/"):
+            result.append(f"`待确认：完整服务名 待确认：HTTP方法 {value}`")
+        else:
+            result.append(f"`待确认：{value} 的完整服务名、HTTP方法和完整路径`")
+    return "<br>".join(result)
+
+
+def mysql_cell(row: Row) -> str:
+    writes = "<br>".join(f"`{v}`" for v in sorted(row.mysql_write)[:30]) or "无"
+    reads = "<br>".join(f"`{v}`" for v in sorted(row.mysql_read)[:30]) or "无"
+    return f"写入：{writes}<br>只读：{reads}"
+
+
+def overview_lines(rows: list[Row], compact: bool) -> list[str]:
+    if compact:
+        lines = [
+            "| 入口类型 | 入口 | 状态 | 调用链摘要 | MySQL表 | Redis key | ES索引 | MongoDB表 | Kafka topic | RabbitMQ queue | RocketMQ topic | 外围接口 |",
+            "|---|---|---|---|---|---|---|---|---|---|---|---|",
+        ]
+    else:
+        lines = [
+            "| 入口类型 | 入口 | 状态 | 调用链摘要 | MySQL表 | Redis key | ES索引 | MongoDB表 | Kafka topic | RabbitMQ queue | RocketMQ topic | 外围接口 | 证据文件 | 备注 |",
+            "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|",
+        ]
+    for row in rows:
+        external = compact_external_cell(row.external) if compact else cell(row.external)
+        values = [
+            row.entry_type,
+            f"`{row.entry}`",
+            row.status,
+            row.summary or "无",
+            mysql_cell(row),
+            cell(row.redis),
+            cell(row.es),
+            cell(row.mongo),
+            cell(row.kafka),
+            cell(row.rabbit),
+            cell(row.rocketmq),
+            external,
+        ]
+        if not compact:
+            values.extend([cell(row.evidence), row.note or "无"])
+        lines.append(
+            "| "
+            + " | ".join(values)
+            + " |"
+        )
+    return lines
+
+
 def write_markdown(
     output: Path,
     project: Path,
@@ -274,7 +340,12 @@ def write_markdown(
     scan_mq: bool,
     max_depth: int,
     rows: list[Row],
+    output_mode: str,
 ) -> None:
+    if output_mode == "compact":
+        output.write_text("\n".join(overview_lines(rows, compact=True)) + "\n", encoding="utf-8")
+        return
+
     now = dt.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     lines = [
         "# Java 后端链路梳理",
@@ -291,32 +362,8 @@ def write_markdown(
         "",
         "## 总览表",
         "",
-        "| 入口类型 | 入口 | 状态 | 调用链摘要 | MySQL表 | Redis key | ES索引 | MongoDB表 | Kafka topic | RabbitMQ queue | RocketMQ topic | 外围接口 | 证据文件 | 备注 |",
-        "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|",
     ]
-    for row in rows:
-        lines.append(
-            "| "
-            + " | ".join(
-                [
-                    row.entry_type,
-                    f"`{row.entry}`",
-                    row.status,
-                    row.summary or "无",
-                    cell(row.mysql),
-                    cell(row.redis),
-                    cell(row.es),
-                    cell(row.mongo),
-                    cell(row.kafka),
-                    cell(row.rabbit),
-                    cell(row.rocketmq),
-                    cell(row.external),
-                    cell(row.evidence),
-                    row.note or "无",
-                ]
-            )
-            + " |"
-        )
+    lines.extend(overview_lines(rows, compact=False))
     lines.extend(["", "## 跳过清单", "", "| 类型 | 入口 | 原因 | 后续动作 |", "|---|---|---|---|"])
     skipped = [r for r in rows if r.status.startswith("跳过") or r.status in {"未找到入口", "未找到本地消费者"}]
     if skipped:
@@ -337,6 +384,12 @@ def main() -> int:
     parser.add_argument("--scan-peripheral", default="false", help="Whether to recursively scan external interfaces")
     parser.add_argument("--scan-mq", default="false", help="Whether to recursively scan MQ topics/queues")
     parser.add_argument("--max-depth", type=int, default=3, help="Maximum recursive depth")
+    parser.add_argument(
+        "--output-mode",
+        choices=["compact", "full"],
+        default="compact",
+        help="Output mode: compact overview table (default) or full candidate report",
+    )
     parser.add_argument("--output", default="backend-java-chain-audit-result.md", help="Output markdown file")
     args = parser.parse_args()
 
@@ -381,7 +434,17 @@ def main() -> int:
                 queue.append(("MQ", topic, depth + 1))
 
     output = Path(args.output).expanduser().resolve()
-    write_markdown(output, project, args.interface, args.topic, scan_peripheral, scan_mq, args.max_depth, rows)
+    write_markdown(
+        output,
+        project,
+        args.interface,
+        args.topic,
+        scan_peripheral,
+        scan_mq,
+        args.max_depth,
+        rows,
+        args.output_mode,
+    )
     print(output)
     return 0
 
