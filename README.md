@@ -6,12 +6,13 @@
 
 ## 当前技能
 
-- `code-migration`
-- `entity-sync`
-- `git-commit-helper`
-- `prd-task-breakdown`
-- `requirement-design-doc`
-- `troubleshoot-jsh-issue`
+- [`backend-java-chain-audit`](backend-java-chain-audit/README.md)：扫描 Java 接口或 MQ 调用链及相关资源。
+- [`code-migration`](code-migration/README.md)：按接口、MQ 或任务迁移 Java 代码。
+- [`entity-sync`](entity-sync/README.md)：对比 Java Entity 与数据库表结构。
+- [`git-commit-helper`](git-commit-helper/README.md)：分析变更并按规范执行 Git 提交。
+- [`prd-task-breakdown`](prd-task-breakdown/README.md)：拆解 PRD 任务并汇总角色工时。
+- [`requirement-design-doc`](requirement-design-doc/README.md)：生成 Markdown 技术设计稿。
+- [`troubleshoot-jsh-issue`](troubleshoot-jsh-issue/README.md)：结合 SLS 日志和本地代码排查问题。
 
 ## 目录约定
 

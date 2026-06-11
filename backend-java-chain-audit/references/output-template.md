@@ -1,5 +1,7 @@
 # Java 后端链路梳理输出模板
 
+本文件用于完整模式。精简模式使用 [compact-output-template.md](compact-output-template.md)。
+
 ## 输入参数与扫描边界
 
 - 后端项目：`待填写`
@@ -14,7 +16,7 @@
 
 | 入口类型 | 入口 | 状态 | 调用链摘要 | MySQL表 | Redis key | ES索引 | MongoDB表 | Kafka topic | RabbitMQ queue | RocketMQ topic | 外围接口 | 证据文件 | 备注 |
 |---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| HTTP | `/path` | 待确认 | Controller -> Service -> Mapper | `table_name` | 无 | 无 | 无 | 无 | 无 | 无 | 无 | `src/main/java/...` | 脚本候选，待人工核对 |
+| HTTP | `/path` | 待确认 | Controller -> Service -> Mapper | 写入：`write_table`<br>只读：`read_table` | 无 | 无 | 无 | 无 | 无 | 无 | 无 | `src/main/java/...` | 脚本候选，待人工核对 |
 
 ## 入口明细
 
@@ -25,7 +27,7 @@
   1. `Controller.method`
   2. `Service.method`
   3. `Mapper.method`
-- MySQL 表：`无`
+- MySQL 表：写入 `无`；只读 `无`
 - Redis key：`无`
 - ES 索引：`无`
 - MongoDB 表：`无`
