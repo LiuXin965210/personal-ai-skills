@@ -1,0 +1,7 @@
+interface:
+  display_name: "Java 后端链路梳理"
+  short_description: "扫描 Java 调用链并输出完整服务名和具体接口路径"
+  default_prompt: "使用 $backend-java-chain-audit 扫描 Java 后端接口或 MQ 链路，输出完整服务名、HTTP 方法和具体接口路径。"
+
+policy:
+  allow_implicit_invocation: true
