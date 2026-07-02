@@ -1,5 +1,8 @@
 {
-  "code_root": "/path/to/jsh/code",
+  "gitlab": {
+    "base_url": "https://git.haier.net",
+    "token": "YOUR_GITLAB_PERSONAL_ACCESS_TOKEN"
+  },
   "access_key_id": "YOUR_ACCESS_KEY_ID_OR_DELETE_THIS_FIELD",
   "access_key_secret": "YOUR_ACCESS_KEY_SECRET_OR_DELETE_THIS_FIELD"
 }
